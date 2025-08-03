@@ -199,39 +199,55 @@ document.addEventListener('keyup', (e) => {
     keys[e.code] = false;
 });
 
-// Mobile controls
-document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    mobileInput.left = true;
-});
-document.getElementById('leftBtn').addEventListener('touchend', (e) => {
-    e.preventDefault();
-    mobileInput.left = false;
-});
-document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    mobileInput.right = true;
-});
-document.getElementById('rightBtn').addEventListener('touchend', (e) => {
-    e.preventDefault();
-    mobileInput.right = false;
-});
-document.getElementById('jumpBtn').addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    mobileInput.jump = true;
-});
-document.getElementById('jumpBtn').addEventListener('touchend', (e) => {
-    e.preventDefault();
-    mobileInput.jump = false;
-});
-document.getElementById('superpowerBtn').addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    mobileInput.superpower = true;
-});
-document.getElementById('superpowerBtn').addEventListener('touchend', (e) => {
-    e.preventDefault();
-    mobileInput.superpower = false;
-});
+// Mobile controls with safety checks
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+const jumpBtn = document.getElementById('jumpBtn');
+const superpowerBtn = document.getElementById('superpowerBtn');
+
+if (leftBtn) {
+    leftBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        mobileInput.left = true;
+    });
+    leftBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mobileInput.left = false;
+    });
+}
+
+if (rightBtn) {
+    rightBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        mobileInput.right = true;
+    });
+    rightBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mobileInput.right = false;
+    });
+}
+
+if (jumpBtn) {
+    jumpBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        mobileInput.jump = true;
+    });
+    jumpBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mobileInput.jump = false;
+    });
+}
+
+if (superpowerBtn) {
+    superpowerBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        mobileInput.superpower = true;
+    });
+    superpowerBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mobileInput.superpower = false;
+    });
+}
 
 // Initialize game objects from level array
 function initializeLevel() {
@@ -1451,6 +1467,39 @@ function renderPowerups() {
     }
 }
 
+function renderCheckpoints() {
+    if (!ctx) return;
+    for (let checkpoint of checkpoints) {
+        const x = checkpoint.x - camera.x;
+        const y = checkpoint.y - camera.y;
+        
+        // Checkpoint flag pole
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(x + 14, y + 16, 4, 48);
+        
+        // Flag
+        if (checkpoint.activated) {
+            ctx.fillStyle = '#00FF00'; // Green when activated
+        } else {
+            ctx.fillStyle = '#0066FF'; // Blue when not activated
+        }
+        
+        // Flag triangle
+        ctx.beginPath();
+        ctx.moveTo(x + 18, y + 16);
+        ctx.lineTo(x + 32, y + 24);
+        ctx.lineTo(x + 18, y + 32);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Flag pole top
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(x + 16, y + 16, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
 function renderEnemies() {
     // Ground enemies
     for (let enemy of enemies) {
@@ -1677,6 +1726,7 @@ function gameLoop() {
         renderLevel();
         renderCoins();
         renderPowerups();
+        renderCheckpoints();
         renderEnemies();
         renderProjectiles();
         renderPlayer();
@@ -1791,42 +1841,64 @@ function renderCharacterPreview(ctx, char, x, y, width, height) {
 
 // Initialize the game directly when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, starting game directly...');
+    console.log('🚀 Starting game initialization...');
     
     // Set default character
     selectedCharacter = 'mario';
+    console.log('✅ Character set to:', selectedCharacter);
     
     // Initialize canvas
     if (!initializeCanvas()) {
-        console.error('Failed to initialize canvas!');
+        console.error('❌ Failed to initialize canvas!');
         return;
     }
+    console.log('✅ Canvas initialized successfully');
+    
+    // Update player character after setting selectedCharacter
+    player.character = selectedCharacter;
+    console.log('✅ Player character updated to:', player.character);
     
     // Start the game directly
     gameState = 'playing';
     const gameContainer = document.getElementById('gameContainer');
     if (gameContainer) {
         gameContainer.style.display = 'block';
+        console.log('✅ Game container visible');
     }
     
     // Initialize game
     score = 0;
     lives = 3;
     gameTimer = 300; // 5 minutes
+    console.log('✅ Game variables initialized');
+    
     applyDifficulty();
+    console.log('✅ Difficulty applied');
+    
     initializeLevel();
+    console.log('✅ Level initialized - Coins:', coins.length, 'Enemies:', enemies.length);
+    
     resetPlayerPosition();
+    console.log('✅ Player position reset to:', player.x, player.y);
+    
     camera.x = 0;
     camera.y = 0;
     updateUI();
+    console.log('✅ UI updated');
     
     // Start game loop
     gameLoop();
+    console.log('✅ Game loop started');
     
     // Setup restart button
     setupRestartButton();
+    console.log('✅ Restart button setup');
     
-    console.log('Game started successfully!');
+    // Add character selection
+    addCharacterSelector();
+    console.log('✅ Character selector added');
+    
+    console.log('🎉 Game started successfully!');
 });
 
 function setupRestartButton() {
@@ -1947,102 +2019,32 @@ function applyDifficulty() {
     GAME_TIME = gameTimer;
 }
 
-// Menu Navigation System
-function setupMenuNavigation() {
-    // Main menu buttons
-    document.getElementById('playBtn').addEventListener('click', () => {
-        showScreen('characterScreen');
-    });
-    
-    document.getElementById('instructionsBtn').addEventListener('click', () => {
-        showScreen('instructionsScreen');
-    });
-    
-    document.getElementById('settingsBtn').addEventListener('click', () => {
-        showScreen('settingsScreen');
-    });
-    
-    document.getElementById('creditsBtn').addEventListener('click', () => {
-        showScreen('creditsScreen');
-    });
-    
-    // Back buttons
-    document.getElementById('backFromInstructionsBtn').addEventListener('click', () => {
-        showScreen('startScreen');
-    });
-    
-    document.getElementById('backFromSettingsBtn').addEventListener('click', () => {
-        showScreen('startScreen');
-    });
-    
-    document.getElementById('backFromCreditsBtn').addEventListener('click', () => {
-        showScreen('startScreen');
-    });
-    
-    document.getElementById('backFromCharacterBtn').addEventListener('click', () => {
-        showScreen('startScreen');
-    });
-    
-    // Level complete buttons
-    document.getElementById('playAgainBtn').addEventListener('click', () => {
-        showScreen('characterScreen');
-    });
-    
-    document.getElementById('backToMenuBtn').addEventListener('click', () => {
-        showScreen('startScreen');
-    });
-    
-    document.getElementById('backToMenuFromGameOverBtn').addEventListener('click', () => {
-        showScreen('startScreen');
-    });
-    
-    // Restart button
-    const restartBtn = document.getElementById('restartBtn');
-    if (restartBtn) {
-        restartBtn.onclick = () => {
-            // Initialize canvas first
-            if (!initializeCanvas()) {
-                console.error('Failed to initialize canvas');
-                return;
-            }
-            
-            gameState = 'playing';
-            const gameOverScreen = document.getElementById('gameOverScreen');
-            const gameContainer = document.getElementById('gameContainer');
-            if (gameOverScreen) gameOverScreen.style.display = 'none';
-            if (gameContainer) gameContainer.style.display = 'block';
-            score = 0;
-            applyDifficulty(); // Apply current difficulty settings
-            initializeLevel();
-            resetPlayerPosition();
-            camera.x = 0;
-            camera.y = 0;
-            updateUI();
-        };
+function addCharacterSelector() {
+    // Add character selector to the UI
+    const ui = document.getElementById('ui');
+    if (ui) {
+        const characterSelector = document.createElement('div');
+        characterSelector.innerHTML = `
+            <div style="margin-top: 10px;">
+                <label style="color: white; font-weight: bold;">Character: </label>
+                <select id="characterSelect" style="padding: 5px; margin-left: 5px;">
+                    <option value="mario">Mario (Red)</option>
+                    <option value="luigi">Luigi (Green)</option>
+                    <option value="princess">Princess (Pink)</option>
+                    <option value="knight">Knight (Silver)</option>
+                </select>
+            </div>
+        `;
+        ui.appendChild(characterSelector);
+        
+        const select = document.getElementById('characterSelect');
+        select.value = selectedCharacter;
+        select.addEventListener('change', (e) => {
+            selectedCharacter = e.target.value;
+            player.character = selectedCharacter;
+            console.log('Character changed to:', selectedCharacter);
+        });
     }
-    
-    // Settings
-    document.getElementById('soundToggle').addEventListener('change', (e) => {
-        gameSettings.soundEnabled = e.target.checked;
-    });
-    
-    document.getElementById('difficultySelect').addEventListener('change', (e) => {
-        gameSettings.difficulty = e.target.value;
-    });
 }
 
-function showScreen(screenId) {
-    // Hide all screens
-    const screens = ['startScreen', 'instructionsScreen', 'settingsScreen', 'creditsScreen', 'characterScreen', 'levelCompleteScreen', 'gameOverScreen'];
-    screens.forEach(screen => {
-        const element = document.getElementById(screen);
-        if (element) element.style.display = 'none';
-    });
-    
-    // Show requested screen
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) targetScreen.style.display = 'flex';
-}
-
-// Next steps: Level design, player, physics, etc.
-// Each part will be explained as we build.
+// Game is now streamlined without menu system
