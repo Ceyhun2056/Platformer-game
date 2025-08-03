@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Test</title>
+</head>
+<body>
+    <h1>Game Test</h1>
+    <button id="testBtn" style="padding: 20px; font-size: 20px; background: red; color: white;">Click Me Test</button>
+    <canvas id="gameCanvas" width="800" height="450" style="border: 1px solid black;"></canvas>
+    
+    <script>
+        console.log('🚀 TEST SCRIPT STARTING...');
+        
+        document.getElementById('testBtn').onclick = () => {
+            console.log('🔴 TEST BUTTON CLICKED!');
+            alert('Button works!');
+            
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            if (ctx) {
+                ctx.fillStyle = 'red';
+                ctx.fillRect(10, 10, 100, 100);
+                alert('Canvas works! Red square drawn.');
+            } else {
+                alert('Canvas context failed!');
+            }
+        };
+        
+        console.log('🏁 TEST SCRIPT FINISHED!');
+    </script>
+</body>
+</html>
