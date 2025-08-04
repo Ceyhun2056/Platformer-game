@@ -3,35 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Platformer Game</title>
+    <title>Super Mario Platformer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Start Screen -->
+    <div id="startScreen" class="screen active">
+        <div class="screen-content">
+            <h1>🍄 Super Mario Platformer</h1>
+            <p>A complete 2D platformer adventure!</p>
+            <button id="startBtn" class="btn btn-primary">🚀 Start Game</button>
+            <button id="instructionsBtn" class="btn btn-secondary">📖 Instructions</button>
+        </div>
+    </div>
+
+    <!-- Instructions Screen -->
+    <div id="instructionsScreen" class="screen">
+        <div class="screen-content">
+            <h2>📖 How to Play</h2>
+            <div class="instructions">
+                <div class="control-group">
+                    <h3>🎮 Controls</h3>
+                    <ul>
+                        <li><strong>Arrow Keys</strong> or <strong>WASD</strong> - Move left/right</li>
+                        <li><strong>Space</strong> or <strong>Up Arrow</strong> - Jump</li>
+                        <li><strong>Mobile:</strong> Use touch buttons</li>
+                    </ul>
+                </div>
+                <div class="control-group">
+                    <h3>🎯 Objectives</h3>
+                    <ul>
+                        <li>🪙 Collect coins for points</li>
+                        <li>👹 Avoid or jump on enemies</li>
+                        <li>🏁 Reach the flag to complete the level</li>
+                        <li>❤️ Don't lose all your lives!</li>
+                    </ul>
+                </div>
+            </div>
+            <button id="backBtn" class="btn btn-secondary">⬅️ Back</button>
+        </div>
+    </div>
+
     <!-- Game Over Screen -->
-    <div id="gameOverScreen" class="screen" style="display:none;">
-        <h1>Game Over</h1>
-        <p id="finalScore"></p>
-        <button id="restartBtn" class="menu-btn">🔄 Restart</button>
-    </div>
-    
-    <!-- Canvas and UI -->
-    <div id="gameContainer">
-        <canvas id="gameCanvas" width="800" height="450"></canvas>
-        <div id="ui">
-            <span id="score">Score: 0</span>
-            <span id="lives">Lives: 3</span>
-            <span id="timer">Time: 5:00</span>
-            <span id="powerUpStatus">No Power-ups</span>
-            <div id="powerupIndicator"></div>
+    <div id="gameOverScreen" class="screen">
+        <div class="screen-content">
+            <h2>💀 Game Over</h2>
+            <p id="finalScore">Score: 0</p>
+            <button id="restartBtn" class="btn btn-primary">🔄 Try Again</button>
+            <button id="mainMenuBtn" class="btn btn-secondary">🏠 Main Menu</button>
         </div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="victoryScreen" class="screen">
+        <div class="screen-content">
+            <h2>🏆 Victory!</h2>
+            <p>Congratulations! You completed the level!</p>
+            <p id="victoryScore">Score: 0</p>
+            <button id="playAgainBtn" class="btn btn-primary">🔄 Play Again</button>
+            <button id="victoryMenuBtn" class="btn btn-secondary">🏠 Main Menu</button>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="gameContainer" class="hidden">
+        <!-- HUD -->
+        <div id="hud">
+            <div class="hud-item">
+                <span class="hud-label">TIME:</span>
+                <span id="timer">180</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">SCORE:</span>
+                <span id="score">0</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">LIVES:</span>
+                <span id="lives">3</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">COINS:</span>
+                <span id="coinsCollected">0</span>/<span id="totalCoins">0</span>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
         <!-- Mobile Controls -->
-        <div id="mobileControls">
-            <button id="leftBtn">◀</button>
-            <button id="jumpBtn">▲</button>
-            <button id="rightBtn">▶</button>
-            <button id="superpowerBtn">⚡</button>
+        <div id="mobileControls" class="mobile-controls">
+            <div class="control-pad">
+                <button id="leftBtn" class="control-btn">←</button>
+                <button id="rightBtn" class="control-btn">→</button>
+            </div>
+            <button id="jumpBtn" class="control-btn jump-btn">↑</button>
         </div>
     </div>
+
     <script src="game.js"></script>
 </body>
 </html>
