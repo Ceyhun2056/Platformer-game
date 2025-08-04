@@ -275,24 +275,44 @@ function initUIHandlers() {
 }
 
 function showScreen(screenId) {
+    console.log(`[showScreen] Called with ID: '${screenId}'`);
+
     // Hide all screens
     document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
+        if (screen.classList.contains('active')) {
+            console.log(`[showScreen] Hiding screen: #${screen.id}`);
+            screen.classList.remove('active');
+        }
     });
     
     // Show target screen
     const targetScreen = document.getElementById(screenId);
     if (targetScreen) {
+        console.log(`[showScreen] Showing screen: #${targetScreen.id}`);
         targetScreen.classList.add('active');
+    } else {
+        console.log(`[showScreen] No screen found with ID: '${screenId}'`);
     }
     
     // Show/hide game container
     const gameContainer = document.getElementById('gameContainer');
     if (screenId === 'game') {
+        console.log('[showScreen] Attempting to show game container.');
+        gameContainer.style.display = 'block';
         gameContainer.classList.remove('hidden');
     } else {
-        gameContainer.classList.add('hidden');
+        console.log('[showScreen] Attempting to hide game container.');
+        gameContainer.style.display = 'none';
     }
+
+    // Use a timeout to allow the DOM to update before checking the computed style
+    setTimeout(() => {
+        const computedStyle = window.getComputedStyle(gameContainer);
+        console.log(`[showScreen] Computed display for #gameContainer: ${computedStyle.display}`);
+        if (screenId === 'game' && computedStyle.display !== 'block') {
+            console.error('[showScreen] CRITICAL: #gameContainer is not visible after trying to show it!');
+        }
+    }, 100);
 }
 
 function updateHUD() {
@@ -306,6 +326,67 @@ function updateHUD() {
 // ========================================
 // GAME OBJECTS
 // ========================================
+
+class Platform {
+    constructor(x, y, width, height, type = 'ground') {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.type = type;
+    }
+    
+    draw() {
+        const drawX = this.x - camera.x;
+        const drawY = this.y;
+        
+        if (this.type === 'ground') {
+            // Ground texture
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(drawX, drawY, this.width, this.height);
+            
+            // Grass on top
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(drawX, drawY, this.width, 4);
+            
+            // Dirt texture
+            ctx.fillStyle = '#654321';
+            for (let i = 0; i < this.width; i += 8) {
+                for (let j = 4; j < this.height; j += 8) {
+                    if (Math.random() > 0.7) {
+                        ctx.fillRect(drawX + i, drawY + j, 2, 2);
+                    }
+                }
+            }
+        } else {
+            // Platform texture
+            ctx.fillStyle = '#A0522D';
+            ctx.fillRect(drawX, drawY, this.width, this.height);
+            
+            // Platform border
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(drawX, drawY, this.width, this.height);
+        }
+    }
+}
+
+class MovingPlatform extends Platform {
+    constructor(x, y, width, height, range, speed) {
+        super(x, y, width, height, 'moving');
+        this.startX = x;
+        this.range = range;
+        this.speed = speed;
+        this.direction = 1;
+    }
+
+    update() {
+        this.x += this.speed * this.direction;
+        if (this.x > this.startX + this.range || this.x < this.startX) {
+            this.direction *= -1;
+        }
+    }
+}
 
 class Player {
     constructor(x, y) {
@@ -713,23 +794,6 @@ class PowerUp {
     }
 }
 
-class MovingPlatform extends Platform {
-    constructor(x, y, width, height, range, speed) {
-        super(x, y, width, height, 'moving');
-        this.startX = x;
-        this.range = range;
-        this.speed = speed;
-        this.direction = 1;
-    }
-
-    update() {
-        this.x += this.speed * this.direction;
-        if (this.x > this.startX + this.range || this.x < this.startX) {
-            this.direction *= -1;
-        }
-    }
-}
-
 class Checkpoint {
     constructor(x, y) {
         this.x = x;
@@ -832,50 +896,6 @@ class Coin {
         ctx.fillRect(drawX + 6, drawY + 3, 2, 10);
         ctx.fillRect(drawX + 4, drawY + 5, 6, 2);
         ctx.fillRect(drawX + 4, drawY + 9, 6, 2);
-    }
-}
-
-class Platform {
-    constructor(x, y, width, height, type = 'ground') {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.type = type;
-    }
-    
-    draw() {
-        const drawX = this.x - camera.x;
-        const drawY = this.y;
-        
-        if (this.type === 'ground') {
-            // Ground texture
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(drawX, drawY, this.width, this.height);
-            
-            // Grass on top
-            ctx.fillStyle = '#228B22';
-            ctx.fillRect(drawX, drawY, this.width, 4);
-            
-            // Dirt texture
-            ctx.fillStyle = '#654321';
-            for (let i = 0; i < this.width; i += 8) {
-                for (let j = 4; j < this.height; j += 8) {
-                    if (Math.random() > 0.7) {
-                        ctx.fillRect(drawX + i, drawY + j, 2, 2);
-                    }
-                }
-            }
-        } else {
-            // Platform texture
-            ctx.fillStyle = '#A0522D';
-            ctx.fillRect(drawX, drawY, this.width, this.height);
-            
-            // Platform border
-            ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(drawX, drawY, this.width, this.height);
-        }
     }
 }
 
